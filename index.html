@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Descubre Tu Estilo de Decoración</title>
+    <style>
+        :root {
+            --primary: #3a3b40;
+            --secondary: #bcc0ae;
+            --accent: #949d68;
+            --text: #3D3D3D;
+            --light: #f2f5f7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background-color: var(--secondary);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .quiz-container {
+            background-color: var(--light);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+        }
+
+        .question-container {
+            display: none;
+        }
+
+        .question-container.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        .question {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: var(--primary);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .option {
+            background-color: white;
+            border: 2px solid var(--secondary);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: var(--accent);
+        }
+
+        .option img {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 3 / 2;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .option p {
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-container {
+            margin-top: 30px;
+            background-color: white;
+            border-radius: 30px;
+            height: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--accent);
+            border-radius: 30px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .result-container {
+            display: none;
+            text-align: center;
+            animation: fadeIn 0.8s;
+        }
+
+        .result-container img {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .result-title {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .result-description {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .restart-btn {
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Estilos para el contador de preguntas */
+        .question-counter {
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: var(--accent);
+            font-weight: 600;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Test Estilo de Decoración</h1>
+            <p>Responde a las siguientes preguntas y descubre tu estilo de decoración.</p>
+        </header>
+
+        <div class="quiz-container">
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+
+            <div class="question-counter" id="question-counter">Pregunta 1 de 10</div>
+
+            <!-- Preguntas y opciones (se generan dinámicamente con JavaScript) -->
+            <div id="question-container"></div>
+
+            <div class="navigation">
+                <button id="prev-btn" disabled>Anterior</button>
+                <button id="next-btn">Siguiente</button>
+            </div>
+        </div>
+
+        <div class="result-container" id="result-container">
+            <div class="result-title" id="result-title"></div>
+            <img id="result-image" src="" alt="Estilo de decoración">
+            <div class="result-description" id="result-description"></div>
+            <button class="restart-btn" id="restart-btn">Volver a empezar</button>
+        </div>
+    </div>
+
+    <script>
+        // Datos del cuestionario
+        const questions = [
+            {
+                question: "¿Dónde te gustaría vivir?",
+                options: [
+                    { text: "En una cabaña rodeada de naturaleza.", style: "organico", image: "https://images.pexels.com/photos/14569262/pexels-photo-14569262.jpeg" },
+                    { text: "En una casa junto al mar, con mucha luz.", style: ["mediterraneo", "boho"], image: "https://images.pexels.com/photos/5007356/pexels-photo-5007356.jpeg?auto=compress&cs=tinysrgb&w=1260&h=840&dpr=1text=CasaPlaya" },
+                    { text: "En un loft urbano con estructura industrial.", style: ["industrial", "minimalismo"], image: "https://images.pexels.com/photos/466685/pexels-photo-466685.jpeg?auto=compress&cs=tinysrgb&w=1260&h=840&dpr=1" },
+                    { text: "En una casa sencilla y equilibrada en un pueblo tranquilo.", style: "japandi", image: "https://images.pexels.com/photos/111963/pexels-photo-111963.jpeg?auto=compress&cs=tinysrgb&w=1260&h=840&dpr=1" }
+                ]
+            },
+            {
+                question: "¿Qué paleta de colores te atrae más?",
+                options: [
+                    { text: "Tonos tierra, verdes y materiales naturales.", style: "organico", image: "https://images.pexels.com/photos/1535421/pexels-photo-1535421.jpeg?auto=compress&cs=tinysrgb&w=1260&h=840&dpr=1" },
+                    { text: "Blancos puros, beige y gris claro.", style: ["japandi", "minimalismo"], image: "https://images.pexels.com/photos/4210376/pexels-photo-4210376.jpeg?auto=compress&cs=tinysrgb&w=1260&h=840&dpr=1" },
+                    { text: "Negro, gris oscuro, marrón y tonos metálicos.", style: "industrial", image: "https://images.pexels.com/photos/1695052/pexels-photo-1695052.jpeg?auto=compress&cs=tinysrgb&w=1260&h=840&dpr=1" },
+                    { text: "Arena, azul, terracota y blanco.", style: ["mediterraneo", "boho"], image: "https://images.pexels.com/photos/30882661/pexels-photo-30882661/free-photo-of-iguana-tomando-el-sol-junto-a-un-antiguo-muro-de-piedra.jpeg?auto=compress&cs=tinysrgb&w=1260&h=840&dpr=1" }
+                ]
+            },
+            {
+                question: "¿Qué material no puede faltar en tu hogar?",
+                options: [
+                    { text: "Madera en su estado más natural y piedra.", style: ["organico", "boho"], image: "https://images.pexels.com/photos/172289/pexels-photo-172289.jpeg?auto=compress&cs=tinysrgb&w=1260&h=840&dpr=1" },
+                    { text: "Hierro, hormigón y madera envejecida.", style: "industrial", image: "https://images.pexels.com/photos/7004227/pexels-photo-7004227.jpeg?auto=compress&cs=tinysrgb&w=1260&h=840&dpr=1" },
+                    { text: "Fibras naturales como lino, ratán y cerámica artesanal.", style: ["japandi", "mediterraneo"], image: "https://images.pexels.com/photos/6204261/pexels-photo-6204261.jpeg?auto=compress&cs=tinysrgb&w=1260&h=840&dpr=1" },
+                    { text: "Superficies lisas y pulidas como mármol o vidrio.", style: "minimalismo", image: "https://images.pexels.com/photos/1323712/pexels-photo-1323712.jpeg?auto=compress&cs=tinysrgb&w=1260&h=840&dpr=1" }
+                ]
+            },
+            {
+                question: "¿Qué tipo de mobiliario prefieres?",
+                options: [
+                    { text: "Robusto, con materiales naturales sin tratar.", style: "organico", image: "https://images.pexels.com/photos/5825709/pexels-photo-5825709.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
+                    { text: "Estructuras metálicas combinadas con madera.", style: "industrial", image: "https://images.pexels.com/photos/6782425/pexels-photo-6782425.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
+                    { text: "Muebles de líneas limpias y sin adornos.", style: ["minimalismo", "japandi"], image: "https://images.pexels.com/photos/30925020/pexels-photo-30925020/free-photo-of-espacio-habitable-moderno-y-luminoso-con-diseno-minimalista.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
+                    { text: "Piezas artesanales y con historia.", style: ["boho", "mediterraneo"], image: "https://images.pexels.com/photos/5824519/pexels-photo-5824519.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" }
+                ]
+            },
+            {
+                question: "¿Qué sensación buscas en tu hogar?",
+                options: [
+                    { text: "Paz, armonía y simplicidad.", style: ["japandi", "minimalismo"], image: "https://images.pexels.com/photos/668353/pexels-photo-668353.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
+                    { text: "Un refugio cálido y natural.", style: ["organico", "mediterraneo"], image: "https://images.pexels.com/photos/30070550/pexels-photo-30070550/free-photo-of-interior-acogedor-de-dormitorio-en-cabana-de-madera-con-vista-a-la-montana.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
+                    { text: "Un espacio vibrante, con personalidad y cultura.", style: "boho", image: "https://images.pexels.com/photos/3932976/pexels-photo-3932976.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
+                    { text: "Un ambiente moderno y urbano con un toque rústico.", style: "industrial", image: "https://images.pexels.com/photos/7045919/pexels-photo-7045919.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" }
+                ]
+            },
+            {
+                question: "¿Cómo imaginas la iluminación de tu casa?",
+                options: [
+                    { text: "Natural, con grandes ventanales y luz cálida.", style: ["japandi", "organico"], image: "https://images.pexels.com/photos/775219/pexels-photo-775219.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
+                    { text: "Focos expuestos, lámparas de metal y luz tenue.", style: "industrial", image: "https://images.pexels.com/photos/1047270/pexels-photo-1047270.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
+                    { text: "Lámparas colgantes de cerámica o ratán.", style: ["mediterraneo", "boho"], image: "https://images.pexels.com/photos/25916368/pexels-photo-25916368/free-photo-of-ligero-bombilla-plantas-rustico.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
+                    { text: "Iluminación indirecta y discreta con luces empotradas.", style: "minimalismo", image: "https://images.pexels.com/photos/7533928/pexels-photo-7533928.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" }
+                ]
+            },
+            {
+                question: "¿Cómo serían las paredes de tu casa?",
+                options: [
+                    { text: "Blancas o en tonos neutros suaves.", style: ["japandi", "minimalismo"], image: "https://images.pexels.com/photos/6805424/pexels-photo-6805424.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
+                    { text: "De piedra, barro o encaladas.", style: ["mediterraneo", "organico"], image: "https://images.pexels.com/photos/1710836/pexels-photo-1710836.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
+                    { text: "Ladrillo visto o cemento pulido.", style: "industrial", image: "https://images.pexels.com/photos/3616764/pexels-photo-3616764.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
+                    { text: "Llenas de arte, texturas y elementos decorativos.", style: "boho", image: "https://images.pexels.com/photos/11274679/pexels-photo-11274679.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" }
+                ]
+            },
+            {
+                question: "¿Qué tipo de textiles prefieres?",
+                options: [
+                    { text: "Lino, algodón orgánico y telas naturales en tonos neutros.", style: ["japandi", "organico"], image: "https://images.pexels.com/photos/8793479/pexels-photo-8793479.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
+                    { text: "Terciopelo, lana gruesa o tejidos estructurados.", style: ["industrial", "minimalismo"], image: "https://images.pexels.com/photos/6630893/pexels-photo-6630893.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
+                    { text: "Textiles ligeros con patrones étnicos o colores vibrantes.", style: "boho", image: "https://images.pexels.com/photos/30501732/pexels-photo-30501732/free-photo-of-alfombras-coloridas-hechas-a-mano-en-exhibicion-en-un-puesto-de-mercado.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
+                    { text: "Telas frescas y con estampados mediterráneos.", style: "mediterraneo", image: "https://images.pexels.com/photos/5998024/pexels-photo-5998024.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" }
+                ]
+            },
+            {
+                question: "¿Cuál es tu decoración ideal?",
+                options: [
+                    { text: "La mínima posible, solo lo esencial.", style: ["minimalismo", "japandi"], image: "https://images.pexels.com/photos/963486/pexels-photo-963486.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
+                    { text: "Elementos naturales como plantas, cerámica y madera.", style: ["organico", "mediterraneo"], image: "https://images.pexels.com/photos/6692145/pexels-photo-6692145.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
+                    { text: "Mezcla de arte, cultura y piezas únicas.", style: "boho", image: "https://images.pexels.com/photos/5824520/pexels-photo-5824520.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
+                    { text: "Detalles industriales como lámparas de metal y muebles de hierro.", style: "industrial", image: "https://images.pexels.com/photos/6585760/pexels-photo-6585760.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" }
+                ]
+            },
+            {
+                question: "¿Qué accesorio decorativo no puede faltar en tu hogar?",
+                options: [
+                    { text: "Jarrones de cerámica artesanal y esculturas minimalistas.", style: ["japandi", "minimalismo"], image: "https://images.pexels.com/photos/27180805/pexels-photo-27180805/free-photo-of-decoracion-del-hogar-de-ceramica.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
+                    { text: "Plantas grandes, piedras naturales y elementos de madera sin tratar.", style: "organico", image: "https://images.pexels.com/photos/7517808/pexels-photo-7517808.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
+                    { text: "Relojes vintage, tuberías expuestas y carteles de metal.", style: "industrial", image: "https://images.pexels.com/photos/5698163/pexels-photo-5698163.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" },
+                    { text: "Alfombras estampadas, cojines coloridos y muebles reciclados.", style: ["boho", "mediterraneo"], image: "https://images.pexels.com/photos/1421176/pexels-photo-1421176.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" }
+                ]
+            }
+        ];
+
+        // Resultados posibles
+        const results = {
+            minimalismo: {
+                title: "Tu estilo es el Minimalismo Moderno",
+                description: "Menos es más. Prefieres la simplicidad, los espacios organizados y la estética limpia. Te gustan los materiales de alta calidad y los tonos neutros sin excesos decorativos. Prefieres espacios simples y funcionales con colores neutros.",
+                image: "http://monicasa.local/wp-content/uploads/2025/02/untitled_copy-2-scaled.jpg"
+            },
+            boho: {
+                title: "Tu estilo es el Boho Moderno",
+                description: "Tu personalidad creativa se refleja en tu hogar. Te encanta mezclar colores, patrones y piezas únicas con un toque vintage y artesanal. Te gustan los ambientes relajados, llenos de colores vibrantes y texturas naturales.",
+                image: "http://monicasa.local/wp-content/uploads/2025/02/untitled_copy_copy-scaled.jpg"
+            },
+            industrial: {
+                title: "Tu estilo es el Industrial Chic",
+                description: "Te gusta la estética urbana con un toque rústico. Materiales como el metal, el ladrillo y el cemento pulido son esenciales para ti. Prefieres un ambiente moderno con carácter y personalidad. Prefieres lo rústico y moderno, con materiales como el hierro y la madera envejecida.",
+                image: "http://monicasa.local/wp-content/uploads/2025/02/untitled-2-scaled.jpg"
+            },
+            organico: {
+                title: "Tu estilo es el Orgánico/Raw Natural",
+                description: "Amas la naturaleza y la calidez de los materiales en su estado más puro. Tu hogar es un refugio de calma con madera sin tratar, piedra y textiles naturales. Te gustan los espacios naturales y cálidos con materiales como la madera y la piedra.",
+                image: "http://monicasa.local/wp-content/uploads/2025/02/untitled_copy-2-scaled.jpg"
+            },
+            mediterraneo: {
+                title: "Tu estilo es el Mediterráneo Moderno",
+                description: "Te atraen los espacios frescos, abiertos y llenos de luz. Prefieres materiales naturales como la madera y la cerámica, con detalles artesanales y colores inspirados en el mar y la tierra. Prefieres espacios cálidos y acogedores con colores vivos y detalles rústicos.",
+                image: "http://monicasa.local/wp-content/uploads/2025/02/untitled_copy_copy-scaled.jpg"
+            },
+            japandi: {
+                title: "Tu estilo es el Japandi",
+                description: "Buscas un hogar sereno y equilibrado, donde la armonía y la funcionalidad sean lo más importante. Espacios despejados, materiales naturales y una estética minimalista te definen. Te gusta la combinación de minimalismo japonés y funcionalidad escandinava.",
+                image: "http://monicasa.local/wp-content/uploads/2025/02/untitled_copy-scaled.jpg"
+            }
+        };
+
+        // Variables globales
+        let currentQuestion = 0;
+        let userAnswers = [];
+
+        // Elementos del DOM
+        const questionContainer = document.getElementById('question-container');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const questionCounter = document.getElementById('question-counter');
+        const resultContainer = document.getElementById('result-container');
+        const resultTitle = document.getElementById('result-title');
+        const resultImage = document.getElementById('result-image');
+        const resultDescription = document.getElementById('result-description');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // Iniciar el cuestionario
+        function initQuiz() {
+            userAnswers = new Array(questions.length).fill(null);
+            showQuestion(0);
+            updateProgressBar();
+            updateNavigationButtons();
+
+            // Asignamos eventos a los botones
+            prevBtn.addEventListener('click', navigateToPrevQuestion);
+            nextBtn.addEventListener('click', navigateToNextQuestion);
+            restartBtn.addEventListener('click', restartQuiz);
+        }
+
+        // Mostrar pregunta actual
+        function showQuestion(index) {
+            currentQuestion = index;
+            questionCounter.textContent = `Pregunta ${index + 1} de ${questions.length}`;
+
+            // Crear contenido de la pregunta
+            const questionData = questions[index];
+
+            // Crear el contenido HTML para la pregunta actual
+            let html = `
+                <div class="question-container active">
+                    <div class="question">${questionData.question}</div>
+                    <div class="options-grid">
+            `;
+
+            // Agregar opciones
+            questionData.options.forEach((option, i) => {
+                html += `
+                    <div class="option" data-index="${i}">
+                        <img src="${option.image}" alt="${option.text}">
+                        <p>${option.text}</p>
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                </div>
+            `;
+
+            questionContainer.innerHTML = html;
+
+            // Añadir eventos click a las opciones
+            const optionElements = questionContainer.querySelectorAll('.option');
+            optionElements.forEach(option => {
+                option.addEventListener('click', selectOption);
+            });
+
+            // Marcar la opción seleccionada previamente (si existe)
+            if (userAnswers[currentQuestion] !== null) {
+                optionElements[userAnswers[currentQuestion]].style.borderColor = 'var(--primary)';
+                optionElements[userAnswers[currentQuestion]].style.backgroundColor = '#f0f7f1';
+            }
+
+            updateNavigationButtons();
+            updateProgressBar();
+        }
+
+        // Seleccionar una opción
+        function selectOption(e) {
+            const selectedOption = e.currentTarget;
+            const optionIndex = parseInt(selectedOption.getAttribute('data-index'));
+
+            // Desmarcar todas las opciones
+            const allOptions = questionContainer.querySelectorAll('.option');
+            allOptions.forEach(option => {
+                option.style.borderColor = 'var(--secondary)';
+                option.style.backgroundColor = 'white';
+            });
+
+            // Marcar la opción seleccionada
+            selectedOption.style.borderColor = 'var(--primary)';
+            selectedOption.style.backgroundColor = '#f0f7f1';
+
+            // Guardar la respuesta
+            userAnswers[currentQuestion] = optionIndex;
+
+            // Actualizar botones de navegación
+            updateNavigationButtons();
+        }
+
+        // Actualizar botones de navegación
+        function updateNavigationButtons() {
+            // Habilitar/deshabilitar botón anterior
+            prevBtn.disabled = currentQuestion === 0;
+
+            // Cambiar texto del botón siguiente/finalizar
+            if (currentQuestion === questions.length - 1) {
+                nextBtn.textContent = 'Ver resultado';
+                nextBtn.disabled = userAnswers[currentQuestion] === null;
+            } else {
+                nextBtn.textContent = 'Siguiente';
+                nextBtn.disabled = userAnswers[currentQuestion] === null;
+            }
+        }
+
+        // Actualizar barra de progreso
+        function updateProgressBar() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        // Navegar a la pregunta anterior
+        function navigateToPrevQuestion() {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        }
+
+        // Navegar a la siguiente pregunta o mostrar resultado
+        function navigateToNextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            } else {
+                showResult();
+            }
+        }
+
+        // Mostrar el resultado
+        function showResult() {
+            // Ocultar contenedor de preguntas y mostrar resultado
+            document.querySelector('.quiz-container').style.display = 'none';
+            resultContainer.style.display = 'block';
+
+            // Calcular el estilo predominante
+            const styleCount = {};
+
+            // Contar las veces que aparece cada estilo
+            userAnswers.forEach((answerIndex, questionIndex) => {
+                const selectedOption = questions[questionIndex].options[answerIndex];
+
+                // La opción puede tener uno o varios estilos (array o string)
+                const styles = Array.isArray(selectedOption.style)
+                    ? selectedOption.style
+                    : [selectedOption.style];
+
+                styles.forEach(style => {
+                    styleCount[style] = (styleCount[style] || 0) + 1;
+                });
+            });
+
+            // Encontrar el estilo con mayor puntuación
+            let maxCount = 0;
+            let dominantStyle = null;
+
+            for (const style in styleCount) {
+                if (styleCount[style] > maxCount) {
+                    maxCount = styleCount[style];
+                    dominantStyle = style;
+                }
+            }
+
+            // Mostrar resultado
+            const result = results[dominantStyle];
+            resultTitle.textContent = result.title;
+            resultDescription.textContent = result.description;
+            resultImage.src = result.image;
+            resultImage.alt = result.title;
+        }
+
+        // Reiniciar el cuestionario
+        function restartQuiz() {
+            currentQuestion = 0;
+            userAnswers = new Array(questions.length).fill(null);
+            document.querySelector('.quiz-container').style.display = 'block';
+            resultContainer.style.display = 'none';
+            showQuestion(0);
+        }
+
+        // Iniciar el cuestionario cuando se carga la página
+        window.addEventListener('load', initQuiz);
+    </script>
+</body>
+</html>
